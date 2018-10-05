@@ -435,19 +435,10 @@ class Pages extends CI_Controller {
     echo $this->calendar->parse_template();
   }
 
+  /*cart*/
   function cart()
   {
     $this->load->library('cart');
-    $this->cart;
-
-    $data = array(
-      'id'    =>  'sku_123ABC',
-      'qty'   =>  1,
-      'price' =>  100.89,
-      'name'  =>  'Baju',
-      'options' =>  array('size' => 'S', 'color' => 'Red')
-    );
-    $this->cart->insert($data);
 
     // multiple insert data
     $data = array(
@@ -471,30 +462,111 @@ class Pages extends CI_Controller {
                 'name'    => 'Shot Glass'
         )
     );
+    // $this->cart->destroy();
     $this->cart->insert($data);
     $this->load->view('cart/index');
   }
 
+  function cart_add()
+  {
+    $this->load->library('cart');
+    $this->cart;
+
+    $data = array(
+      'id'    =>  'sku_123ABC',
+      'qty'   =>  1,
+      'price' =>  100.89,
+      'name'  =>  'Baju',
+      'options' =>  array('size' => 'S', 'color' => 'Red')
+    );
+    $this->cart->insert($data);
+  }
+
   function cart_update()
   {
+    $this->load->library('cart');
     $post = array();
-    $i = 1;
     foreach ( $this->input->post() as $key => $value )
     { 
-        var_dump($value);
-        die();
-        if ($key == 'rowid') {
-          $post['{$i}'.$key] = $this->input->post($key);
-          $i = $i++;
-        } else {
-          $post[$key] = $this->input->post($key);
-        }
+      /*var_dump($this->cart->get_item($value['rowid']));
+      echo "<br/>";
+      var_dump($this->cart->has_options($value['rowid']));
+      echo "<br/>";
+      var_dump($this->cart->product_options($value['rowid']));
+      die();*/
+      $post[$key] = $this->input->post($key);
     }
-    var_dump($post); 
-    die();
-    $data = array(
-      'rowid' =>  $_POST['[rowid]']
+    $this->cart->update($post);
+    redirect('pages/cart','refresh');
+  }
+
+  function cart_delete()
+  {
+   $this->load->library('cart');
+    $post = array();
+    foreach ( $this->input->post() as $key => $value )
+    { 
+      $this->cart->remove($value['rowid']);
+      $post[$key] = $this->input->post($key);
+    }
+    redirect('pages/cart','refresh'); 
+  }
+  /*end cart*/
+
+  /*config*/
+  function config()
+  {
+    // Loads a config file named blog_settings.php and assigns it to an index named "blog_settings"
+    $this->config->load('test');
+
+    // Retrieve a config item named site_name contained within the test array
+    $site_name = $this->config->item('home', 'pagesUrl');
+    var_dump($site_name);
+
+    // An alternate way to specify the same item:
+    $blog_config = $this->config->item('pagesUrl');
+    var_dump($blog_config);
+    $site_name = $blog_config['home'];
+    var_dump($site_name);
+
+    // setting config item
+    $this->config->set_item('item_name', 'item_value');
+
+    /*$this->config->load('test');
+    $config['gender'] = array('male', 'female');
+    var_dump($this->config->item('gender'));*/
+  }
+
+  /*email*/
+  function email()
+  {
+    $this->load->library('email');
+    /*$config['protocol'] = 'sendmail';
+    $config['mailpath'] = '/usr/sbin/sendmail';
+    $config['charset']  = 'iso-8859-1';
+    $config['wordwrap'] = TRUE;*/
+
+    $config = Array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'ssl://smtp.googlemail.com',
+      'smtp_port' => 465,
+      'smtp_user' => 'kharenputra@gmail.com', // change it to yours
+      'smtp_pass' => 'kharennduet', // change it to yours
+      'mailtype' => 'html',
+      'charset' => 'iso-8859-1',
+      'wordwrap' => TRUE
     );
+    $this->email->initialize($config);
+
+    $this->email->from('rendi@meetdoctor.com', 'Rendi');
+    $this->email->to('kharenputra@gmail.com');
+    $this->email->cc('renzcort@gmail.com');
+    $this->email->bcc('kharenputra@gmail.com');
+
+    $this->email->subject('Email test');
+    $this->email->message('Testing the email class');
+    $this->email->send();
+    echo $this->email->print_debugger();
   }
 }
 

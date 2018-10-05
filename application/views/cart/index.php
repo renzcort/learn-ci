@@ -31,5 +31,12 @@
     <td class="right"><strong>Total</strong></td>
     <td class="right">$<?php echo $this->cart->format_number($this->cart->total()); ?></td>
   </tr>
+  <tr>
+    <td class="right"><strong>Total Items</strong></td>
+    <td class="right">$<?php echo $this->cart->total_items(); ?></td>
+  </tr>
+  <tr>
+    <td class="right"><strong>Get Items</strong></td>
+  </tr>
 </table>
 <p><?php echo form_submit('', 'Update your Cart'); ?></p>
