@@ -546,28 +546,231 @@ class Pages extends CI_Controller {
     $config['charset']  = 'iso-8859-1';
     $config['wordwrap'] = TRUE;*/
 
-    $config = Array(
-      'protocol' => 'smtp',
-      'smtp_host' => 'ssl://smtp.googlemail.com',
-      'smtp_port' => 465,
-      'smtp_user' => 'kharenputra@gmail.com', // change it to yours
-      'smtp_pass' => 'kharennduet', // change it to yours
-      'mailtype' => 'html',
-      'charset' => 'iso-8859-1',
-      'wordwrap' => TRUE
-    );
+    $config['protocol']    = 'smtp';
+    $config['smtp_host']    = 'ssl://smtp.gmail.com';
+    $config['smtp_port']    = '465';
+    $config['smtp_timeout'] = '7';
+    $config['smtp_user']    = 'kharenputra@gmail.com';
+    $config['smtp_pass']    = '';
+    $config['charset']    = 'utf-8';
+    $config['newline']    = "\r\n";
+    $config['mailtype'] = 'text'; // or html
+    $config['validation'] = TRUE; // bool whether to validate email or not      
     $this->email->initialize($config);
 
-    $this->email->from('rendi@meetdoctor.com', 'Rendi');
-    $this->email->to('kharenputra@gmail.com');
-    $this->email->cc('renzcort@gmail.com');
-    $this->email->bcc('kharenputra@gmail.com');
+    $this->email->from('kharenputra@gmail.com', 'Rendi');
+    $this->email->to('renzcort@gmail.com'); 
+    // $this->email->cc('renzcort@gmail.com');
+    // $this->email->bcc('rendi@maksimaselarasabadi.co.id');
 
-    $this->email->subject('Email test');
-    $this->email->message('Testing the email class');
+    $this->email->subject('Email Test');
+    $this->email->message('Testing the email class.');  
     $this->email->send();
     echo $this->email->print_debugger();
   }
+
+  /*encryption*/
+  function encrypt()
+  {
+    $this->load->library('encrypt');
+    var_dump($this->encrypt);
+    echo "<br>";
+
+    // encode
+    $msg = "My Secret message";
+    $key = "super-secreet-key";
+    $encryption_string1 = $this->encrypt->encode($msg);
+    var_dump($encryption_string1);
+    echo "<br>";
+    $encryption_string = $this->encrypt->encode($msg, $key);
+    var_dump($encryption_string);
+    echo "<br>";
+
+    // decode
+    $decode_string1 = $this->encrypt->decode($encryption_string1);
+    var_dump($decode_string1);
+    echo "<br>";
+    $decode_string = $this->encrypt->decode($msg, $key);
+    var_dump($decode_string);
+    echo "<br>";
+
+    // chipper
+    $this->encrypt->set_cipher(MCRYPT_BLOWFISH);
+    echo extension_loaded('mcrypt') ? 'Yup' : 'Nope';
+    echo "<br>";
+
+    // set mode
+    var_dump($this->encrypt->set_mode(MCRYPT_MODE_CFB));
+    echo "<br>";
+
+    // leagacy
+    $new_data = $this->encrypt->encode_from_legacy($encryption_string1);
+    var_dump($new_data);
+  }
+
+  function encryption()
+  {
+    $this->load->library('encryption');
+    var_dump($this->encryption); echo "<br>"; echo "<br>";
+
+    // $key will be assigned a 16-byte (128-bit) random key
+    $key = $this->encryption->create_key(16);
+    var_dump($key); echo "<br>";
+
+    // Get a hex-encoded representation of the key:
+    $key = bin2hex($this->encryption->create_key(16));
+    var_dump($key); echo "<br>";
+
+    // configure libraru
+    $this->encryption->initialize(
+      array('cipher'  =>  'aes-256',
+            'mode'    =>  'ctr',
+            'key'     =>  '<a 32-character random string>'  
+      )
+    );
+    // switch to MCrypt driver
+    var_dump($this->encryption->initialize(array('driver' => 'mcrypt'))); echo "<br>";
+    // swith back to the OpenSSL Driver
+    var_dump($this->encryption->initialize(array('driver' => 'OpenSSL'))); echo "<br>";
+
+    // encryption and descryption data
+    $plan_text = 'This is plan_text message';
+    $chippertext = $this->encryption->encrypt($plan_text); 
+    var_dump($chippertext); echo "<br>";
+    echo $this->encryption->decrypt($chippertext); echo "<br>";
+
+    // Assume that we have $ciphertext, $key and $hmac_key
+    // from on outside source
+    $message = $this->encryption->decrypt($chippertext, array(
+                'cipher'  =>  'blowfish',
+                'mode'    =>  'cbc',
+                'key'     =>  $key,
+                'hmac_digest' =>  'sha256',
+                'hmac_key'  =>  'ripemd160'
+              )
+    );
+    var_dump($message); echo "<br>";
+
+    // initialize
+    var_dump($this->encryption->initialize(array('mode' =>  'ctr'))); echo "<br>";
+
+    // hkdf
+    $hmac_key = $this->encryption->hkdf($key, 'sha512', NULL, NULL, 'authentication');
+    var_dump($hmac_key); echo "<br>";
+  }
+
+  function form()
+  {
+    $this->load->helper(array('form', 'url'));
+    $this->load->view('form/index', array('error' => ' '));
+  }
+  function form_upload()
+  {
+    $config['upload_path']  = './uploads/';
+    $config['allowed_types'] = 'gif|jpg|png|jpeg';
+    $config['max_size']     = 100;
+    $config['max_width']    = 1024;
+    $config['max_height']   = 768;
+    $this->load->library('upload', $config);
+    // alternate with initialize
+    $this->upload->initialize($config);
+
+    if ( ! $this->upload->do_upload('userfile')) {
+      $error = array('error'  =>  $this->upload->display_errors());
+      $this->load->view('form/index', $error);
+    } else {
+      /*$data_file = array(
+        'file_name'     => 'mypic.jpg',
+        'file_type'     => 'image/jpeg',
+        'file_path'     => '/path/to/your/upload/',
+        'full_path'     => '/path/to/your/upload/jpg.jpg',
+        'raw_name'      => 'mypic',
+        'orig_name'     => 'mypic.jpg',
+        'client_name'   => 'mypic.jpg',
+        'file_ext'      => '.jpg',
+        'file_size'     => '22.2',
+        'is_image'      => '1',
+        'image_width'   => '800',
+        'image_height'  => '600',
+        'image_type'    => 'jpeg',
+        'image_size_str' => 'width="800" height="200"',
+      );*/
+
+      $data = array('upload_data' => $this->upload->data());
+      $this->load->view('form/success', $data);
+    }
+  }
+
+  /*form validation*/
+  function form_validation()
+  {
+    $this->load->view('form/validation');
+  }
+  function form_validation_check()
+  {
+    $this->load->helper(array('form', 'url'));
+    $this->load->library('form_validation');
+
+    /*form validation rules 1*/
+    /*$this->form_validation->set_rules('username', 'Username', 'required');
+    $this->form_validation->set_rules('password', 'Password', 'required', array('required' => 'You must provide a %s.'));
+    $this->form_validation->set_rules('passconf', 'Password confirmation', 'required');
+    $this->form_validation->set_rules('email', 'Email', 'required');*/
+
+    /*form validation rules 2*/
+    /*$config = array(
+        array(
+                'field' => 'username',
+                'label' => 'Username',
+                'rules' => 'required'
+        ),
+        array(
+                'field' => 'password',
+                'label' => 'Password',
+                'rules' => 'required',
+                'errors' => array(
+                        'required' => 'You must provide a %s.',
+                ),
+        ),
+        array(
+                'field' => 'passconf',
+                'label' => 'Password Confirmation',
+                'rules' => 'required'
+        ),
+        array(
+                'field' => 'email',
+                'label' => 'Email',
+                'rules' => 'required'
+        )
+    );
+    $this->form_validation->set_rules($config);*/
+
+    // validation rules 3
+    /*$this->form_validation->set_rules(
+        'username', 'Username',
+        'required|min_length[5]|max_length[12]|is_unique[users.username]',
+        array(
+                'required'      => 'You have not provided %s.',
+                'is_unique'     => 'This %s already exists.'
+        )
+    );
+    $this->form_validation->set_rules('password', 'Password', 'required');
+    $this->form_validation->set_rules('passconf', 'Password Confirmation', 'required|matches[password]');
+    $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]');*/
+
+    // form validation rules 4
+    $this->form_validation->set_rules('username', 'Username', 'trim|required|min_length[5]|max_length[12]');
+    $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
+    $this->form_validation->set_rules('passconf', 'Password Confirmation', 'trim|required|matches[password]');
+    $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+
+    if ($this->form_validation->run() == FALSE) {
+      $this->load->view('form/validation');
+    } else {
+      $this->load->view('form/validation_success');
+    }
+  }
+
 }
 
 /* End of file Pages.php */
