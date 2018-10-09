@@ -104,18 +104,18 @@ class Form_validation extends CI_Controller {
     var_dump($this->form_validation->has_rule('username'));
 
     if ($this->form_validation->run() == FALSE) {
-      $this->load->view('form/validation');
+      $this->load->view('libraries/form/validation');
     } else {
-      $this->load->view('form/validation_success');
+      $this->load->view('libraries/form/validation_success');
     }
   }
 
   public function signup()
   {
     if ($this->form_validation->run('signup') == FALSE) {
-      $this->load->view('form/validation');
+      $this->load->view('libraries/form/validation');
     } else {
-      $this->load->view('form/validation_success');
+      $this->load->view('libraries/form/validation_success');
     }
   }
 

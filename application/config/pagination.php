@@ -22,8 +22,22 @@ $config['cur_tag_open'] = '<b>';
 $config['cur_tag_close'] = '</b>';
 
 $config['use_page_numbers'] = TRUE;
-$config['page_query_string']  = FALSE;
-$config['reuse_query_string'] = FALSE;
+$config['page_query_string']  = TRUE;
+$config['reuse_query_string'] = TRUE;
 $config['prefix'] = '';
 $config['suffix'] = '';
-$config['use_global_url_suffix'] = FALSE;
+$config['use_global_url_suffix'] = TRUE;
+
+$config['first_url']	=	'';
+// customize digit link
+$config['num_tag_open']	=	'<div>';
+$config['num_tag_close']=	'</div>';
+
+// hiding the pages 
+$config['display_pages']=	FALSE;
+
+// attribute to anchor 
+$config['attributes']	=	array('class'	=>	'myclass');
+
+// disable the 'rel' attribute
+$config['attributes']['rel']	=	FALSE;
