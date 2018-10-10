@@ -13,5 +13,5 @@ function any_in_array($needle, $haystack)
 
 function random_element($array) {
   shuffle($array);
-  return array_pop($array)
+  return array_pop($array);
 }

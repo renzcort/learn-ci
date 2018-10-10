@@ -13,10 +13,10 @@ class Session extends CI_Controller {
 	public function index()
 	{
 		// Retrieving Session Data
-		$name = $_SESSION['name'];
+		// $name = $_SESSION['name'];
+    // or:
+    $name = $this->session->name;
 		var_dump($name); echo "<br>";
-		// or:
-		$name = $this->session->name;
 		// or:
 		$name = $this->session->userdata('name');
 
@@ -83,12 +83,18 @@ class Session extends CI_Controller {
 		// alternatively
 		$this->session->set_tempdata('item', 'value', 300);
 		$tempdata = array('newuser' => TRUE, 'message' => 'Thanks for joining!');
+    $expire = '';
 		$this->session->set_tempdata($tempdata, NULL, $expire);
 		// To read a tempdata variable,
 		$this->session->tempdata('item');
 		var_dump($this->session->tempdata('item')); echo "<br>";
 		$this->session->tempdata();
 		var_dump($this->session->tempdata()); echo "<br>";
+
+    // Destroying a Session
+    session_destroy();
+    // or
+    $this->session->sess_destroy();
 
 	}
 
